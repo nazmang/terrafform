@@ -38,13 +38,9 @@ resource "yandex_kubernetes_cluster" "kub-test" {
   network_id = yandex_vpc_network.internal.id
 
   master {
-    regional {
-      region = "ru-central1"
-
-      location {
+    zonal {
         zone      = yandex_vpc_subnet.internal-a.zone
         subnet_id = yandex_vpc_subnet.internal-a.id
-      }
     }
     version   = "1.18"
     public_ip = true
