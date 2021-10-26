@@ -1,38 +1,3 @@
-resource "yandex_iam_service_account" "docker-registry" {
-  name        = "docker-registry"
-  description = "service account to use container registry"
-}
-
-resource "yandex_iam_service_account" "instances-editor" {
-  name        = "instances-editor"
-  description = "service account to manage VMs"
-}
-
-resource "yandex_vpc_network" "internal" {
-  name = "internal"
-}
-
-resource "yandex_vpc_subnet" "internal-a" {
-  name           = "internal-a"
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.internal.id
-  v4_cidr_blocks = ["10.200.0.0/16"]
-}
-
-resource "yandex_vpc_subnet" "internal-b" {
-  name           = "internal-b"
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.internal.id
-  v4_cidr_blocks = ["10.201.0.0/16"]
-}
-
-resource "yandex_vpc_subnet" "internal-c" {
-  name           = "internal-c"
-  zone           = "ru-central1-c"
-  network_id     = yandex_vpc_network.internal.id
-  v4_cidr_blocks = ["10.202.0.0/16"]
-}
-
 resource "yandex_kubernetes_cluster" "kub-test" {
   name       = "kub-test"
   network_id = yandex_vpc_network.internal.id
@@ -46,7 +11,7 @@ resource "yandex_kubernetes_cluster" "kub-test" {
     public_ip = true
   }
   release_channel         = "RAPID"
-  network_policy_provider = "CALICO"
+#  network_policy_provider = "CALICO"
   node_service_account_id = yandex_iam_service_account.docker-registry.id
   service_account_id      = yandex_iam_service_account.instances-editor.id
 }
