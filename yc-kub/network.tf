@@ -22,4 +22,3 @@ resource "yandex_vpc_subnet" "internal-c" {
   network_id     = yandex_vpc_network.internal.id
   v4_cidr_blocks = ["10.202.0.0/16"]
 }
-

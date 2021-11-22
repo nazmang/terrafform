@@ -4,14 +4,13 @@ resource "yandex_kubernetes_cluster" "kub-test" {
 
   master {
     zonal {
-        zone      = yandex_vpc_subnet.internal-a.zone
-        subnet_id = yandex_vpc_subnet.internal-a.id
+        zone      = "ru-central1-a"
     }
     version   = "1.18"
     public_ip = true
   }
   release_channel         = "RAPID"
-#  network_policy_provider = "CALICO"
+  network_policy_provider = "CALICO"
   node_service_account_id = yandex_iam_service_account.docker-registry.id
   service_account_id      = yandex_iam_service_account.instances-editor.id
 }
@@ -26,7 +25,7 @@ resource "yandex_kubernetes_node_group" "test-group-auto" {
 
     network_interface {
       nat        = true
-      subnet_ids = ["${yandex_vpc_subnet.internal-a.id}", "${yandex_vpc_subnet.internal-b.id}", "${yandex_vpc_subnet.internal-c.id}"]
+      subnet_ids = [yandex_vpc_subnet.internal-a.id]
     }
 
     resources {
