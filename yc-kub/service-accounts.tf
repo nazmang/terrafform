@@ -36,10 +36,24 @@ resource "yandex_resourcemanager_folder_iam_binding" "k8s_editor" {
   ]
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "vpc_publicAdmin" {
+resource "yandex_resourcemanager_folder_iam_binding" "vpc_admin" {
   folder_id = var.yc_folder_id
 
-  role = "vpc.publicAdmin"
+  role = "vpc.admin"
+
+  members = [
+    "serviceAccount:${yandex_iam_service_account.instances-editor.id}",
+  ]
+
+  depends_on = [
+    yandex_iam_service_account.instances-editor
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "vpc_user" {
+  folder_id = var.yc_folder_id
+
+  role = "vpc.user"
 
   members = [
     "serviceAccount:${yandex_iam_service_account.instances-editor.id}",
