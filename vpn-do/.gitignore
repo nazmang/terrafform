@@ -1,0 +1,12 @@
+*.tfvars
+*.key*
+.terraform/
+*lock*
+*.tfstate*
+*.old
+*.bak
+inventory.yaml
+*.p12
+*.sswan
+*.mobileconfig
+*.ovpn
