@@ -7,7 +7,7 @@ variable "my_ssh_public_key" {
 variable "my_ssh_private_key_file" {
   type = string
   description = "Owner's SSH private key"
-  default = "~/.ssh/id_rsa.pub"
+  default = "~/.ssh/id_rsa"
 }
 
 variable "existing_ssh_key" {
