@@ -1,0 +1,3 @@
+---
+nginx_vhost_path: /etc/nginx/sites-enabled
+snapd_path: /usr/lib/snapd/snapd

@@ -1,0 +1,21 @@
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install OS-specific packages
+  include_tasks: "install-{{ ansible_os_family }}.yml"
+  
+
+- name: Delete default nginx site
+  file:
+    path: "{{ nginx_default_vhost_path }}"
+    state: absent  
+  notify: reload nginx
+
+- name: Copy nginx.conf to destination
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf      
+    mode: '0644'
+  notify: reload nginx
+

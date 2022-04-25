@@ -1,0 +1,3 @@
+---
+nginx_vhost_path: /etc/nginx/conf.d
+snapd_path: /var/lib/snapd/snap

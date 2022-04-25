@@ -1,0 +1,5 @@
+---
+certbot_certs:
+ - domain: "{{ ansible_fqdn }}"
+
+

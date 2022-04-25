@@ -1,0 +1,47 @@
+---
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Ensure snapd is installed.
+  package:
+    name: snapd
+    state: present
+  notify:
+    - snapd socket
+    - snapd update     
+
+- name: Enable classic snap support.
+  file:
+    src: "{{ snapd_path }}"
+    dest: /snap
+    state: link   
+  when:  ansible_os_family == 'RedHat'
+
+- name: Install certbot via snap.
+  snap:
+    name: certbot
+    classic: true
+
+- name: Symlink certbot into place.
+  file:
+    src: /snap/bin/certbot
+    dest: /usr/bin/certbot
+    state: link
+
+- name: Set Certbot script variable.
+  set_fact:
+    certbot_script: /usr/bin/certbot
+
+- include_tasks: certificate.yml
+  with_items: "{{ certbot_certs }}"
+  loop_control:
+    loop_var: cert_item
+
+- name: Add cron job for certbot renewal.
+  cron:
+    name: Certbot automatic renewal.
+    job: "{{ certbot_script }} renew --quiet --no-self-upgrade --deploy-hook '{{ certbot_deploy_hook }}'"
+    minute: "30"
+    hour: "3"
+    user: "root"
+

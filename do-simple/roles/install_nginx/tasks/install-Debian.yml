@@ -1,0 +1,6 @@
+---
+- name: Ensure if Nginx presents
+  apt:
+    name: nginx
+    state: present
+  notify: start nginx  

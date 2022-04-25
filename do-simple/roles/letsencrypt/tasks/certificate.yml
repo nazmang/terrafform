@@ -1,0 +1,62 @@
+---
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+  
+- name: Check if certificate already exists
+  stat: 
+    path: "/etc/letsencrypt/live/{{ cert_item.domain }}/cert.pem"
+  register: letsencrypt_cert
+
+- name: Location fix 
+  blockinfile:
+    path: "{{ nginx_vhost_path }}/{{ cert_item.domain }}.conf"
+    backup: yes
+    insertafter: "index index.html;"
+    block: |
+      location ^~ /.well-known/acme-challenge/ {
+        default_type "text/plain";
+        root /var/www/{{ cert_item.domain }};
+      }      
+  when: not letsencrypt_cert.stat.exists
+  notify: reload nginx  
+
+- name: Set Certbot create command
+  set_fact:
+    certbot_create_command: >-
+     {{ certbot_script }} certonly --webroot -w /var/www/{{ cert_item.domain }}
+     --noninteractive --agree-tos 
+     --email {{ cert_item.email | default(certbot_admin_email) }} 
+     -d {{ cert_item.domain }}      
+
+- name: Generate new certificate if one doesn't exist.
+  command: "{{ certbot_create_command }}"
+  when: not letsencrypt_cert.stat.exists  
+
+- name: Add SSL port to vhost configuration 
+  lineinfile:
+    path: "{{ nginx_vhost_path }}/{{ cert_item.domain }}.conf"
+    regexp: "listen 80;"
+    line: listen 443 ssl;
+  when: letsencrypt_cert.stat.exists
+
+- name: Add SSL to vhost configuration 
+  blockinfile:
+    path: "{{ nginx_vhost_path }}/{{ cert_item.domain }}.conf"
+    backup: yes
+    insertafter: "listen 443 ssl;"
+    block: |
+      ssl_certificate /etc/letsencrypt/live/{{ cert_item.domain }}/fullchain.pem;
+      ssl_certificate_key /etc/letsencrypt/live/{{ cert_item.domain }}/privkey.pem;
+
+      ssl_session_cache shared:SSL:50m;
+      ssl_session_timeout 5m;
+      ssl_stapling on;
+      ssl_stapling_verify on;
+
+      ssl_protocols TLSv1.2 TLSv1.3;
+      ssl_ciphers "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4";
+
+      ssl_prefer_server_ciphers on;     
+  when: letsencrypt_cert.stat.exists
+  notify: reload nginx  
+

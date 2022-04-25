@@ -1,0 +1,11 @@
+---
+
+certbot_admin_email: email@net.ru
+
+certbot_certs: []
+# - email: admin@example.com
+#   domain:
+#     - example.com
+# - domains:
+#     - example.net
+certbot_deploy_hook: /usr/sbin/nginx -s reload     

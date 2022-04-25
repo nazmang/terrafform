@@ -1,0 +1,25 @@
+galaxy_info:
+  role_name: letsencrypt
+  author: John Doe
+  description: Letsencrypt cert setup for Nginx example
+  company: Home
+
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.4
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Debian
+      versions:
+        - stretch
+        - buster
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+
+dependencies:
+  - role: install_nginx
+  - role: config_vhosts
