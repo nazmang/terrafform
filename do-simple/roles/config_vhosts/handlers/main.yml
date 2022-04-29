@@ -1,6 +1,4 @@
 ---
 - name: reload nginx
-  service:
-    name: nginx
-    state: reloaded
+  command: nginx -s reload
 

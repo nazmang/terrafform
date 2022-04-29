@@ -6,9 +6,7 @@
     enabled: true  
 
 - name: reload nginx
-  service:
-    name: nginx
-    state: reloaded
+  command: nginx -s reload
 
 - name: restart nginx
   service:
