@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.1.0"
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"
@@ -7,6 +8,11 @@ terraform {
     null = {
       version = ">= 3.0"
     }
+  }
+  backend "etcdv3" {
+    endpoints = ["etcd:2379"]
+    lock      = true
+    prefix    = "tf-state_do-simple/"
   }
 }
 

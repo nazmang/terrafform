@@ -49,18 +49,3 @@ variable "domain_name" {
   type  = string
   default="nip.io"
 }
-
-variable "vpn_user" {
-  type = string
-  default = ""
-}
-
-variable "vpn_password" {
-  type = string
-  default = ""
-}
-
-variable "vpn_ipsec_psk" {
-  type = string
-  default = ""
-}
