@@ -1,4 +1,4 @@
 ---
 - name: reload nginx
-  command: nginx -s reload
+  command: /usr/sbin/nginx -s reload
 
