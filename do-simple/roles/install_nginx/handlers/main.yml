@@ -6,7 +6,9 @@
     enabled: true  
 
 - name: reload nginx
-  command: /usr/sbin/nginx -s reload
+  service:
+    name: nginx
+    state: reloaded
 
 - name: restart nginx
   service:

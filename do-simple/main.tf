@@ -26,15 +26,12 @@ data "digitalocean_ssh_key" "existing_keys" {
   name       = var.existing_ssh_key
 }
 
-# # Add my personal key
-# resource "digitalocean_ssh_key" "owners_key" {
-#   name       = "My own SSH key"
-#   public_key = var.my_ssh_public_key
-# }
-
-data "digitalocean_ssh_key" "owners_key" {
-  name       =  "My own SSH key"
+# Add my personal key
+resource "digitalocean_ssh_key" "owners_key" {
+  name       = "My own SSH key"
+  public_key = var.my_ssh_public_key
 }
+
 # Get domain info
 data "digitalocean_domain" "default" {
   name = var.domain_name
