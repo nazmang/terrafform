@@ -46,7 +46,7 @@ resource "digitalocean_droplet" "default" {
   size       = "s-1vcpu-1gb"
   resize_disk  = true
   ssh_keys = [
-    data.digitalocean_ssh_key.owners_key.fingerprint,
+    digitalocean_ssh_key.owners_key.fingerprint,
     data.digitalocean_ssh_key.existing_keys.fingerprint
   ]
     

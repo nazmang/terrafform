@@ -1,0 +1,8 @@
+my_ssh_public_key = "your_ssh_key"
+my_ssh_private_key_file = "path/to/your/private.key"
+existing_ssh_key = "EXISING.KEY.NAME.PUB"
+do_token = "abcdefgh"
+do_region = "nyc1"
+domain_name = "yourdomain.name"
+devs = ["droplet-name"]
+tags = ["foo","bar"]
