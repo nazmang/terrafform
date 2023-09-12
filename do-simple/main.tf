@@ -9,11 +9,11 @@ terraform {
       version = ">= 3.0"
     }
   }
-  backend "etcdv3" {
-    endpoints = ["etcd:2379"]
-    lock      = true
-    prefix    = "tf-state_do-simple/"
-  }
+  # backend "etcdv3" {
+  #   endpoints = ["etcd:2379"]
+  #   lock      = true
+  #   prefix    = "tf-state_do-simple/"
+  # }
 }
 
 # Configure the DigitalOcean Provider
@@ -27,9 +27,9 @@ data "digitalocean_ssh_key" "existing_keys" {
 }
 
 # Add my personal key
-resource "digitalocean_ssh_key" "owners_key" {
-  name       = "My own SSH key"
-  public_key = var.my_ssh_public_key
+resource "digitalocean_ssh_key" "others_key" {
+  name       = "REBRAIN.SSH.PUB.KEY"
+  public_key = var.others_ssh_public_key
 }
 
 # Get domain info
@@ -46,7 +46,7 @@ resource "digitalocean_droplet" "default" {
   size       = "s-1vcpu-1gb"
   resize_disk  = true
   ssh_keys = [
-    digitalocean_ssh_key.owners_key.fingerprint,
+    digitalocean_ssh_key.others_key.fingerprint,
     data.digitalocean_ssh_key.existing_keys.fingerprint
   ]
     
@@ -91,12 +91,34 @@ resource "local_file" "ansible_inventory" {
   filename = "inventory/inventory"
 }
 
-# Apply playbook to Droplet(s)
+# Apply playbook to all droplet(s)
 resource "null_resource" "ansible_play" {
   depends_on = [digitalocean_droplet.default, digitalocean_record.default]
   
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook  -i inventory/inventory --private-key ${var.my_ssh_private_key_file} install_nginx.yaml"
+  }
+}
+
+# Command(s) to be applied on slave nodes only 
+resource "null_resource" "jenkins_install" {
+  depends_on = [digitalocean_droplet.default, digitalocean_record.default]
+  for_each = { for droplet in digitalocean_droplet.default: droplet.name => droplet if strcontains(droplet.name, "slave") } 
+  connection {
+    host = each.value.ipv4_address
+    user = "root"
+    type = "ssh"
+    private_key = file(var.my_ssh_private_key_file)
+    timeout = "5m"
+  }  
+  
+  provisioner "remote-exec" {
+    inline = [
+      "apt-get -yqq update && apt-get -yqq install openjdk-11-jre-headless",
+      "curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee /usr/share/keyrings/nodesource.gpg >/dev/null",
+      "echo 'deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x focal main' > /etc/apt/sources.list.d/nodesource.list",
+      "apt-get -yqq update && apt-get -yqq install nodejs",
+      ]
   }
 }
 

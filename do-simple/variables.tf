@@ -1,6 +1,6 @@
-variable "my_ssh_public_key" {
+variable "others_ssh_public_key" {
   type = string
-  description = "Owner's SSH public key"
+  description = "Other user's SSH public key"
   default = ""
 }
 
