@@ -100,28 +100,6 @@ resource "null_resource" "ansible_play" {
   }
 }
 
-# Command(s) to be applied on slave nodes only 
-resource "null_resource" "jenkins_install" {
-  depends_on = [digitalocean_droplet.default, digitalocean_record.default]
-  for_each = { for droplet in digitalocean_droplet.default: droplet.name => droplet if strcontains(droplet.name, "slave") } 
-  connection {
-    host = each.value.ipv4_address
-    user = "root"
-    type = "ssh"
-    private_key = file(var.my_ssh_private_key_file)
-    timeout = "5m"
-  }  
-  
-  provisioner "remote-exec" {
-    inline = [
-      "apt-get -yqq update && apt-get -yqq install openjdk-11-jre-headless",
-      "curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee /usr/share/keyrings/nodesource.gpg >/dev/null",
-      "echo 'deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x focal main' > /etc/apt/sources.list.d/nodesource.list",
-      "apt-get -yqq update && apt-get -yqq install nodejs",
-      ]
-  }
-}
-
 output "server_ip" {
   value = digitalocean_droplet.default.*.ipv4_address
 }
