@@ -38,4 +38,5 @@
     mode: '0644'
   with_items:
     - "{{ nginx_vhosts }}"
+  changed_when: true  
   notify: reload nginx

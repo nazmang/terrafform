@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.1.0"
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"
@@ -8,6 +9,11 @@ terraform {
       version = ">= 3.0"
     }
   }
+  # backend "etcdv3" {
+  #   endpoints = ["etcd:2379"]
+  #   lock      = true
+  #   prefix    = "tf-state_do-simple/"
+  # }
 }
 
 # Configure the DigitalOcean Provider
@@ -20,15 +26,12 @@ data "digitalocean_ssh_key" "existing_keys" {
   name       = var.existing_ssh_key
 }
 
-# # Add my personal key
-# resource "digitalocean_ssh_key" "owners_key" {
-#   name       = "My own SSH key"
-#   public_key = var.my_ssh_public_key
-# }
-
-data "digitalocean_ssh_key" "owners_key" {
-  name       =  "My own SSH key"
+# Add my personal key
+resource "digitalocean_ssh_key" "others_key" {
+  name       = "REBRAIN.SSH.PUB.KEY"
+  public_key = var.others_ssh_public_key
 }
+
 # Get domain info
 data "digitalocean_domain" "default" {
   name = var.domain_name
@@ -43,7 +46,7 @@ resource "digitalocean_droplet" "default" {
   size       = "s-1vcpu-1gb"
   resize_disk  = true
   ssh_keys = [
-    data.digitalocean_ssh_key.owners_key.fingerprint,
+    digitalocean_ssh_key.others_key.fingerprint,
     data.digitalocean_ssh_key.existing_keys.fingerprint
   ]
     
@@ -88,7 +91,7 @@ resource "local_file" "ansible_inventory" {
   filename = "inventory/inventory"
 }
 
-# Apply playbook to Droplet(s)
+# Apply playbook to all droplet(s)
 resource "null_resource" "ansible_play" {
   depends_on = [digitalocean_droplet.default, digitalocean_record.default]
   

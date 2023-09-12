@@ -1,6 +1,6 @@
 ---
 - name: reload nginx
-  command: nginx -s reload
+  command: /usr/sbin/nginx -s reload
 
 - name: snapd update
   shell: snap install core; snap refresh core

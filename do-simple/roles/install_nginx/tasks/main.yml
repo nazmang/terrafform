@@ -9,8 +9,8 @@
 - name: Delete default nginx site
   file:
     path: "{{ nginx_default_vhost_path }}"
-    state: absent  
-  notify: reload nginx
+    state: absent 
+  notify: restart nginx
 
 - name: Copy nginx.conf to destination
   template:

@@ -1,6 +1,6 @@
-variable "my_ssh_public_key" {
+variable "others_ssh_public_key" {
   type = string
-  description = "Owner's SSH public key"
+  description = "Other user's SSH public key"
   default = ""
 }
 
@@ -48,19 +48,4 @@ variable "droplet_user" {
 variable "domain_name" {
   type  = string
   default="nip.io"
-}
-
-variable "vpn_user" {
-  type = string
-  default = ""
-}
-
-variable "vpn_password" {
-  type = string
-  default = ""
-}
-
-variable "vpn_ipsec_psk" {
-  type = string
-  default = ""
 }
