@@ -94,9 +94,12 @@ resource "local_file" "ansible_inventory" {
 # Apply playbook to all droplet(s)
 resource "null_resource" "ansible_play" {
   depends_on = [digitalocean_droplet.default, digitalocean_record.default]
+  triggers = {
+    digitalocean_droplet_id = join(",",digitalocean_droplet.default.*.id)
+  }
   
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook  -i inventory/inventory --private-key ${var.my_ssh_private_key_file} install_nginx.yaml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -C -i inventory/inventory --private-key ${var.my_ssh_private_key_file} install_nginx.yaml"
   }
 }
 
@@ -114,7 +117,7 @@ resource "null_resource" "jenkins_install" {
   
   provisioner "remote-exec" {
     inline = [
-      "apt-get -yqq update && apt-get -yqq install openjdk-11-jre-headless",
+      "apt-get -yqq update && apt-get -yqq install openjdk-17-jre-headless",
       "curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee /usr/share/keyrings/nodesource.gpg >/dev/null",
       "echo 'deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x focal main' > /etc/apt/sources.list.d/nodesource.list",
       "apt-get -yqq update && apt-get -yqq install nodejs",

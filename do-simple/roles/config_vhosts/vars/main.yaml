@@ -1,6 +1,6 @@
 ---
 nginx_vhosts:
   - listen: "80"
-    server_name: "{{ ansible_fqdn }}"
-    root: "/var/www/{{ ansible_fqdn }}"
+    server_name: "{{ inventory_hostname }}"
+    root: "/var/www/{{ inventory_hostname }}"
 
