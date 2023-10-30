@@ -1,11 +1,11 @@
 server {
-  listen {{ item.listen | default('80') }};
+  listen {{ item.item.listen | default('80') }};
 
-{% if item.server_name is defined %}
-  server_name {{ item.server_name }};
+{% if item.item.server_name is defined %}
+  server_name {{ item.item.server_name }};
 {% endif %}
-{% if item.root is defined %}
-  root {{ item.root }};
+{% if item.item.root is defined %}
+  root {{ item.item.root }};
 {% endif %}
   index index.html;
 
