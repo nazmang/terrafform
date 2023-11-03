@@ -43,7 +43,7 @@ resource "digitalocean_droplet" "default" {
   image      = "ubuntu-20-04-x64"
   name       = var.devs[count.index]
   region     = var.do_region
-  size       = "s-1vcpu-1gb"
+  size       = "s-1vcpu-512mb-10gb"
   resize_disk  = true
   ssh_keys = [
     digitalocean_ssh_key.others_key.fingerprint,
