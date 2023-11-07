@@ -7,3 +7,4 @@
 *.bak
 inventory.yaml
 inventory/
+secrets/
