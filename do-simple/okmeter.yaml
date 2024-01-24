@@ -1,0 +1,7 @@
+- hosts: all
+  tasks:
+  - name: okmeter agent installed
+    become: yes
+    shell: "wget -O - 'https://okmeter.ru/agent/install.sh?t=9b290831-d770-462e-b71a-7ecbf18284e0&u=3271-65b0e7e3' | sh -s -"
+    args:
+      creates: /usr/local/okmeter/supervisor
