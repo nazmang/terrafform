@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:    
+    - prometheus
+    - alertmanager
+    - node_exporter
