@@ -6,12 +6,6 @@
   include_tasks: "install-{{ ansible_os_family }}.yml"
   
 
-- name: Delete default nginx site
-  file:
-    path: "{{ nginx_default_vhost_path }}"
-    state: absent 
-  notify: restart nginx
-
 - name: Copy nginx.conf to destination
   template:
     src: nginx.conf.j2

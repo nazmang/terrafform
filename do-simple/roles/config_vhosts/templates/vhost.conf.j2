@@ -1,15 +1,25 @@
 server {
   listen {{ item.item.listen | default('80') }};
-
 {% if item.item.server_name is defined %}
   server_name {{ item.item.server_name }};
 {% endif %}
 {% if item.item.root is defined %}
   root {{ item.item.root }};
 {% endif %}
-  index index.html;
+{% if item.item.index_file is defined %}
+  index {{ item.item.index_file }};
+{% endif %}
+{% if item.item.access_log_config is defined %}    
+{% for config in item.item.access_log_config %}
+  access_log {{ config.path }} {{ config.format }} {{ config.options }};
+{% endfor %}
+{% endif %}  
 
-  location / {
-    try_files $uri $uri/ =404;    
-  } 
+{% if item.item.locations_config is defined %}
+{% for location in item.item.locations_config %}
+  location {{ location.path }} { 
+    {{ location.config }}
+  }
+{% endfor %}
+{% endif %}  
 }

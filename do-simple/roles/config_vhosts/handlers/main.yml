@@ -2,3 +2,8 @@
 - name: reload nginx
   command: /usr/sbin/nginx -s reload
 
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
