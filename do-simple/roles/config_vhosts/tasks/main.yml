@@ -3,6 +3,13 @@
   include_vars: "{{ ansible_os_family }}.yml"
   tags: vhost_conf
 
+- name: Delete default nginx site
+  file:
+    path: "{{ nginx_default_vhost_path }}"
+    state: absent 
+  when: nginx_remove_default_vhost | bool  
+  notify: restart nginx
+
 - name: Check if vhost directory already exists
   stat: 
     path: "/var/www/{{ item.server_name }}"
@@ -62,5 +69,5 @@
   with_items: "{{ vhost_conf.results }}"
   changed_when: true  
   notify: reload nginx
-  when: not item.stat.exists
+#  when: not item.stat.exists
   tags: vhost_conf

@@ -14,20 +14,26 @@ events {
 http {
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
-
-    log_format  main  {{ nginx_log_format }};
-
-    access_log  /var/log/nginx/access.log  main;
+{% if nginx_log_formats is defined %}    
+{% for formats in nginx_log_formats %}   
+    log_format  {{ formats.name }} {{ formats.format }};
+{% endfor %}
+{% for configs in nginx_access_log_configs %}
+    access_log {{ configs.path }} {{ configs.format_name }} {{ configs.options }};
+{% endfor %}
+{% else %}
+    access_log  /var/log/nginx/access.log  combined;
+{% endif %}
 
     sendfile {{ nginx_sendfile }};
     tcp_nopush {{ nginx_tcp_nopush }};
     tcp_nodelay {{ nginx_tcp_nodelay }};
 
-    keepalive_timeout  65;
+    keepalive_timeout  {{ nginx_keepalive_timeout }};
 
-    server_names_hash_bucket_size 64;
+    server_names_hash_bucket_size {{ nginx_server_names_hash_bucket_size }};
 
-    gzip  on;
+    gzip  {{ nginx_gzip }};
     
     include {{ nginx_vhost_path }}/*.conf;
 }
