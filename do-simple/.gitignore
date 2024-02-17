@@ -7,3 +7,5 @@
 *.bak
 inventory.yaml
 inventory/
+.vagrant/
+ansible.cfg
