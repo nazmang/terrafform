@@ -8,12 +8,7 @@ terraform {
     null = {
       version = ">= 3.0"
     }
-  }
-  # backend "etcdv3" {
-  #   endpoints = ["etcd:2379"]
-  #   lock      = true
-  #   prefix    = "tf-state_do-simple/"
-  # }
+  }  
 }
 
 # Configure the DigitalOcean Provider
@@ -62,6 +57,9 @@ resource "digitalocean_droplet" "default" {
         sudo hostnamectl set-hostname ${self.name}.${var.domain_name}
         apt-get -yqq update && apt-get -yqq install curl wget git net-tools
         curl -sSL https://repos.insights.digitalocean.com/install.sh | sudo bash
+        sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=2048
+        mkswap /var/swap.1 
+        swapon /var/swap.1
         EOF 
     ]
   }
@@ -99,29 +97,7 @@ resource "null_resource" "ansible_play" {
   }
   
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -C -i inventory/inventory --private-key ${var.my_ssh_private_key_file} install_nginx.yaml"
-  }
-}
-
-# Command(s) to be applied on slave nodes only 
-resource "null_resource" "jenkins_install" {
-  depends_on = [digitalocean_droplet.default, digitalocean_record.default]
-  for_each = { for droplet in digitalocean_droplet.default: droplet.name => droplet if strcontains(droplet.name, "slave") } 
-  connection {
-    host = each.value.ipv4_address
-    user = "root"
-    type = "ssh"
-    private_key = file(var.my_ssh_private_key_file)
-    timeout = "5m"
-  }  
-  
-  provisioner "remote-exec" {
-    inline = [
-      "apt-get -yqq update && apt-get -yqq install openjdk-17-jre-headless",
-      "curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee /usr/share/keyrings/nodesource.gpg >/dev/null",
-      "echo 'deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x focal main' > /etc/apt/sources.list.d/nodesource.list",
-      "apt-get -yqq update && apt-get -yqq install nodejs",
-      ]
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/inventory --private-key ${var.my_ssh_private_key_file} install_elk.yaml"
   }
 }
 
