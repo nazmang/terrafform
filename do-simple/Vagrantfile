@@ -1,0 +1,33 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  boxes = [
+      { 
+        :name => "ubuntu-test-box", 
+        :box => "generic/ubuntu2004", 
+        :http_port => "8080",
+        :https_port => "8443" 
+      },
+      
+  ]
+
+  config.ssh.forward_agent = true
+  config.vm.usable_port_range = 8000..8999
+  
+  
+  boxes.each do |opts|
+      config.vm.define opts[:name] do |config|
+        config.vm.box = opts[:box]
+        config.ssh.forward_agent = true
+        config.vm.usable_port_range = 8000..8999
+        config.vm.network "forwarded_port", guest: 80, host: opts[:http_port], auto_correct: true
+        config.vm.network "forwarded_port", guest: 443, host: opts[:https_port], auto_correct: true
+        if opts[:name] == boxes.last[:name]          
+          config.vm.provision "ansible" do |ansible|
+            ansible.playbook = "install_elk.yaml"
+            ansible.limit = "all"
+          end
+        end
+      end
+  end
+end

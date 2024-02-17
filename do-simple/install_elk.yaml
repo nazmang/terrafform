@@ -1,0 +1,38 @@
+- hosts: elk
+  become: true
+
+  vars:
+    htpasswd_credentials:
+      - path: /etc/nginx/passwdfile
+        name: kibanadmin
+        password: 'UCo3x3adU5yJj7q'
+        owner: root
+        group: www-data
+        mode: 'u+rw,g+r'
+
+  roles:
+    - role: ansible-role-java
+      when: "ansible_os_family == 'Debian'"
+      java_packages:
+        - openjdk-11-jdk
+
+    - role: ansible-role-elasticsearch
+      elasticsearch_version: '7.x'
+      elasticsearch_heap_size_min: 512m
+      elasticsearch_heap_size_max: 512m
+
+    - role: ansible-role-kibana  
+      kibana_version: "7.x"
+      kibana_server_host: "127.0.0.1"
+
+    - role: ansible-role-logstash  
+      logstash_version: '7.x'
+      logstash_heap_size_min: 512m
+      logstash_heap_size_max: 512m
+
+    # - role: ansible-role-filebeat    
+    #   filebeat_version: 7.x
+
+    - role: install_nginx      
+    - role: config_vhosts
+    - role: ansible-role-htpasswd  
