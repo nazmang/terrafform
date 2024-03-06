@@ -1,0 +1,13 @@
+---
+- debugger: never
+  gather_facts: true
+  hosts: all
+  vars:
+    - win19cis_rule_1_2_4: false
+    - win19cis_section09: false
+    - win19cis_section18: false
+    - win19cis_section19: false
+    - win19cis_minimum_password_length: 9
+  roles:
+    - ansible-role-ad-controller
+    - windows-2019-cis

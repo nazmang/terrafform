@@ -1,0 +1,4 @@
+---
+collections:
+  - name: microsoft.ad
+    version: 1.4.1 

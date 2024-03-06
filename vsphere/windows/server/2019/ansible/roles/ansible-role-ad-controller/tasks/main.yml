@@ -1,0 +1,36 @@
+---
+- name: Create new domain in a new forest on the target host and reboot
+  microsoft.ad.domain:
+    dns_domain_name: "{{ vm_domain }}"
+    safe_mode_password: "{{vm_domain_admin_password }}"
+    reboot: true
+
+# - name: Ensure server is a domain controller 
+#   microsoft.ad.domain_controller:
+#     dns_domain_name: "{{ vm_domain }}"
+#     domain_admin_user: "{{ vm_domain_admin_username }}"
+#     domain_admin_password: "{{ vm_domain_admin_password }}"
+#     safe_mode_password: "{{vm_domain_admin_password }}"
+#     state: domain_controller 
+#     install_dns: true
+#     reboot: true  
+
+- name: Ensure new user is created with Adminstrator rights
+  microsoft.ad.user:
+    name: "{{ vm_domain_admin_username }}"
+    password: "{{ vm_domain_admin_password }}"
+    state: present
+    groups:
+      set:
+      - Administrators
+      - Domain Admins
+      - Domain Users
+      - Enterprise Admins
+      - Schema Admins
+      - Group Policy Creator Owners
+
+- name: Disable default Adminstrator account
+  microsoft.ad.user:
+    name: "Administrator"
+    enabled: false       
+
