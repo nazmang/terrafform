@@ -1,16 +1,12 @@
 ---
 nginx_vhosts:
   - listen: "80"
-    server_name: "{{ inventory_hostname }}"
-    root: "/var/www/{{ inventory_hostname }}"
-    access_log_config:
-      - format: logstash
-        path: "/var/log/nginx/{{ inventory_hostname }}_access.log"
-        options: ''
+    server_name: "{{ ansible_fqdn }}"
+    root: "/var/www/{{ ansible_fqdn }}"
     locations_config:
       - path: '/'
         config: |-
-          proxy_pass http://127.0.0.1:5601;
+          proxy_pass http://127.0.0.1:9000;
           proxy_redirect off;
           proxy_buffering off;
 
@@ -18,8 +14,7 @@ nginx_vhosts:
           proxy_set_header Connection "Keep-Alive";
           proxy_set_header Proxy-Connection "Keep-Alive";
 
-          auth_basic           "Nginx with basic auth.";
-          auth_basic_user_file /etc/nginx/passwdfile;    
+          
 
 
 

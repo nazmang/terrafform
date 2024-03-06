@@ -1,0 +1,65 @@
+- hosts: "all"
+  remote_user: "ubuntu"
+  become: True
+  vars:
+    #Elasticsearch vars
+    elasticsearch_version: '7.x'
+    elasticsearch_heap_size_min: 512m
+    elasticsearch_heap_size_max: 512m
+    elasticsearch_network_host: 127.0.0.1
+
+    # MongoDB vars
+    graylog_mongodb_version: 5.0
+
+    #Graylog vars
+    graylog_version: 5.2
+    graylog_install_java: True
+    graylog_not_testing: False
+    graylog_password_secret:      "2jueVqZpwLLjaWxV"
+    graylog_root_username:        "admin"
+    # A5LbcRVF2kahVz
+    graylog_root_password_sha2: "9139df46f72ceb8c93c3de6b32a75257bf9e40f2ca2762a7cb375de0a7e0045d"
+    # admin
+    # graylog_root_password_sha2:   "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+    # graylog_password_secret: "" # Insert your own here. Generate with: pwgen -s 96 1    
+    graylog_http_bind_address: "127.0.0.1:9000"
+    graylog_http_publish_uri: "http://localhost:9000/"
+    graylog_http_external_uri: "http://{{ ansible_default_ipv4.address }}:9000/"
+    graylog_server_heap_size: "512m"
+
+    # Logstash vars
+    logstash_version: '7.x'
+    logstash_elasticsearch_hosts:
+      - http://localhost:9200
+    logstash_local_syslog_path: /var/log/syslog
+    logstash_gelf_host: "127.0.0.1"
+    logstash_gelf_port: 12201
+    logstash_install_plugins:
+      - logstash-input-beats
+      - logstash-filter-multiline
+      - logstash-output-gelf
+
+  pre_tasks:
+      - name: update apt cache
+        ansible.builtin.apt:
+          update_cache: yes
+        when: ansible_pkg_mgr == "apt"
+
+  roles:
+    - role: "ansible-role-java"
+      when: "ansible_os_family == 'Debian'"
+      java_packages:
+        - openjdk-17-jdk
+    - role: ansible-role-elasticsearch      
+
+    - role: "ansible-role-graylog"
+      tags:
+        - "graylog"
+
+    # - role: "ansible-role-graylog-sidecar"    
+    #   graylog_sidecar_api_token: "1f0t6oje89bak8b2d5bjqb7b1obfm5r7fqvomnrtnv6031kegvre"
+    #   graylog_sidecar_server_url: "http://127.0.0.1:9000"
+    #   graylog_sidecar_list_log_files: 
+    #     - /var/log
+    #     # - /var/log/nginx
+    - role: "ansible-role-logstash"

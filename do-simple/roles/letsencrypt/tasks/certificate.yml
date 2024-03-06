@@ -11,7 +11,7 @@
   blockinfile:
     path: "{{ nginx_vhost_path }}/{{ cert_item.domain }}.conf"
     backup: yes
-    insertafter: "index index.html;"
+    insertafter: "listen 80;"
     block: |
       location ^~ /.well-known/acme-challenge/ {
         default_type "text/plain";

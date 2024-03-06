@@ -1,5 +1,5 @@
 ---
 certbot_certs:
- - domain: "{{ inventory_hostname }}"
+ - domain: "{{ ansible_fqdn }}"
 
 

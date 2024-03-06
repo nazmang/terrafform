@@ -38,7 +38,7 @@ resource "digitalocean_droplet" "default" {
   image      = "ubuntu-20-04-x64"
   name       = var.devs[count.index]
   region     = var.do_region
-  size       = "s-1vcpu-512mb-10gb"
+  size       = "s-1vcpu-1gb"
   resize_disk  = true
   ssh_keys = [
     digitalocean_ssh_key.others_key.fingerprint,
@@ -53,14 +53,13 @@ resource "digitalocean_droplet" "default" {
     timeout = "5m"
   }  
   provisioner "remote-exec" {
-    inline = [<<EOF
-        sudo hostnamectl set-hostname ${self.name}.${var.domain_name}
-        apt-get -yqq update && apt-get -yqq install curl wget git net-tools
-        curl -sSL https://repos.insights.digitalocean.com/install.sh | sudo bash
-        sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=2048
-        mkswap /var/swap.1 
-        swapon /var/swap.1
-        EOF 
+    inline = [
+        "sudo hostnamectl set-hostname ${self.name}.${var.domain_name}",
+        "apt-get -yqq update && apt-get -yqq install curl wget git net-tools",
+        "curl -sSL https://repos.insights.digitalocean.com/install.sh | sudo bash",
+        "sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=2048",
+        "mkswap /var/swap.1 ",
+        "swapon /var/swap.1"         
     ]
   }
   tags       =  var.tags
@@ -97,7 +96,7 @@ resource "null_resource" "ansible_play" {
   }
   
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/inventory --private-key ${var.my_ssh_private_key_file} install_elk.yaml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/inventory --private-key ${var.my_ssh_private_key_file} install_graylog.yaml install_nginx.yaml"
   }
 }
 
