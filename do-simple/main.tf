@@ -53,16 +53,16 @@ resource "digitalocean_droplet" "default" {
     timeout = "5m"
   }  
   provisioner "remote-exec" {
-    inline = [<<EOF
-        sudo hostnamectl set-hostname ${self.name}.${var.domain_name}
-        apt-get -yqq update && apt-get -yqq install curl wget git net-tools
-        curl -sSL https://repos.insights.digitalocean.com/install.sh | sudo bash
-        sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=2048
-        mkswap /var/swap.1 
-        swapon /var/swap.1
-        EOF 
+    inline = [
+        "sudo hostnamectl set-hostname ${self.name}.${var.domain_name}",
+        "apt-get -yqq update && apt-get -yqq install curl wget git net-tools",
+        "curl -sSL https://repos.insights.digitalocean.com/install.sh | sudo bash",
+        "sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=2048",
+        "mkswap /var/swap.1 ",
+        "swapon /var/swap.1"         
     ]
   }
+  
   tags       =  var.tags
 }
 
