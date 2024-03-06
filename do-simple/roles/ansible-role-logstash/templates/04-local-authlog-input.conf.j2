@@ -1,0 +1,6 @@
+input {
+  file {
+    path => "{{ logstash_local_auth_log_path }}"
+    type => "auth"
+  }
+}

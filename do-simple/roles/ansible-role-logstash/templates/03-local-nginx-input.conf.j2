@@ -1,0 +1,6 @@
+input {
+  file {
+    path => "{{ logstash_local_nginx_log_path }}"
+    type => "nginx"
+  }
+}

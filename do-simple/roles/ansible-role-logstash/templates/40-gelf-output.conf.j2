@@ -1,0 +1,7 @@
+output {
+  gelf {
+    host => "{{ logstash_gelf_host }}"
+    port => {{ logstash_gelf_port }}
+    short_message => "%{message}" # Add short_message field   
+  }
+}

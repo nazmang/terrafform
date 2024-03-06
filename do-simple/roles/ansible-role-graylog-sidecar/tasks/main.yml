@@ -1,0 +1,43 @@
+---
+- name: Install required package
+  ansible.builtin.apt:
+    deb: "{{ graylog_sidecar_package }}"
+    state: present
+  tags:
+    - graylog-sidecar
+
+- name: Write config file
+  notify:
+    - Restart graylog-sidecar
+  ansible.builtin.template:
+    src: config.j2
+    dest: /etc/graylog/sidecar/sidecar.yml
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  tags:
+    - graylog-sidecar
+
+- name: Write service file
+  notify:
+    - Restart graylog-sidecar
+  ansible.builtin.template:
+    src: service.j2
+    dest: /etc/systemd/system/graylog-sidecar.service
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  tags:
+    - graylog-sidecar
+
+- name: Start graylog-sidecar service
+  ansible.builtin.systemd:
+    name: graylog-sidecar
+    state: started
+    daemon_reload: True
+    masked: False
+    enabled: True
+  tags:
+    - graylog-sidecar
+
+...
