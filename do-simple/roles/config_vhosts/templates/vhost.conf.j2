@@ -11,7 +11,7 @@ server {
 {% endif %}
 {% if item.item.access_log_config is defined %}    
 {% for config in item.item.access_log_config %}
-  access_log {{ config.path }} {{ config.format }} {{ config.options }};
+  access_log {{ config.path }} {{ config.format | default('combined')}} {{ config.options | default('')}};
 {% endfor %}
 {% endif %}  
 
