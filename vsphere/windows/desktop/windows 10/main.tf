@@ -65,11 +65,11 @@ resource "vsphere_virtual_machine" "vm" {
     customize {
       timeout       = 20
       windows_options {
-        computer_name         = var.vm_name
-        workgroup             = "WORKGROUP"
-        # join_domain           = var.domain
-        # domain_admin_user     = var.domain_admin_username
-        # domain_admin_password = var.domain_admin_password
+        computer_name         = var.vm_hostname
+        # workgroup             = "WORKGROUP"
+        join_domain           = var.vm_domain
+        domain_admin_user     = var.vm_domain_admin_username
+        domain_admin_password = var.vm_domain_admin_password
         admin_password        = var.vm_admin_password
       }
       network_interface {

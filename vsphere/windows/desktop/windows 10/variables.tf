@@ -91,19 +91,23 @@ variable "vm_dns_server_list" {
   type = list(string)
 }
 
-variable "domain" {
+variable "vm_hostname" {
+  type = string
+}
+
+variable "vm_domain" {
   type = string
   description = "Active Directory domain to which you want to join the virtual machine"
   default = "example.com"
 }
 
-variable "domain_admin_username" {
+variable "vm_domain_admin_username" {
   type = string
   description = "Active Directory user with 'Domain Admins' group membership"
   default = "Administrator"
 }
 
-variable "domain_admin_password" {
+variable "vm_domain_admin_password" {
   type = string
   description = "Active Directory user's password"
   default = "password"
