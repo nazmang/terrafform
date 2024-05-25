@@ -2,6 +2,6 @@ output {
   elasticsearch {
     hosts => {{ logstash_elasticsearch_hosts | to_json }}
     # index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
-    index => "logstash-%{+YYYY.MM.dd}"
+    index => "logs-%{+YYYY.MM.dd}"
   }
 }

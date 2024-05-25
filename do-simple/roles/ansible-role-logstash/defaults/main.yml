@@ -28,6 +28,7 @@ logstash_enabled_on_boot: true
 
 logstash_install_plugins:
   - logstash-input-beats
+  - logstash-input-http
   - logstash-filter-multiline
 
 logstash_setup_default_config: true
