@@ -31,5 +31,6 @@ override.tf.json
 # !example_override.tf
 
 .vagrant/
+manifest.*
 # Temporary disable
 gce-test/
