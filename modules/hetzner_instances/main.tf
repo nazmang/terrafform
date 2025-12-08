@@ -1,18 +1,3 @@
-# Create primary IPs for each instance (only if external_ip is true, ipv4 is enabled and not explicitly set)
-resource "hcloud_primary_ip" "instance" {
-  for_each = {
-    for k, v in local.instances_with_overrides : k => v
-    if v.external_ip == true && v.ipv4_enabled == true && v.ipv4 == null
-  }
-
-  name          = each.value.primary_ip_name
-  datacenter    = try(each.value.datacenter, null)
-  type          = "ipv4"
-  assignee_type = "server"
-  auto_delete   = coalesce(each.value.primary_ip_auto_delete, false)
-  labels        = coalesce(each.value.primary_ip_labels, {})
-}
-
 # Create firewalls
 resource "hcloud_firewall" "firewall" {
   for_each = local.firewall_config
@@ -41,20 +26,21 @@ resource "hcloud_server" "instance" {
   server_type = coalesce(each.value.server_type, var.defaults.server_type)
   image       = coalesce(each.value.image, var.defaults.image)
   ssh_keys    = each.value.ssh_keys
-  labels      = each.value.labels
   user_data   = each.value.user_data
+
+  labels = coalesce(each.value.labels, {})
 
   location   = try(each.value.location, null)
   datacenter = try(each.value.datacenter, null)
 
   public_net {
     ipv4_enabled = coalesce(each.value.ipv4_enabled, true)
-    ipv4         = each.value.ipv4 != null ? each.value.ipv4 : (coalesce(each.value.ipv4_enabled, true) ? try(hcloud_primary_ip.instance[each.key].id, null) : null)
+    ipv4         = each.value.ipv4
     ipv6_enabled = coalesce(each.value.ipv6_enabled, true)
   }
 
   dynamic "network" {
-    for_each = each.value.networks
+    for_each = coalesce(each.value.networks, [])
     content {
       network_id = network.value.network_id
       ip         = try(network.value.ip, null)
@@ -63,8 +49,6 @@ resource "hcloud_server" "instance" {
   }
 
   shutdown_before_deletion = each.value.shutdown_before_deletion
-
-  depends_on = [hcloud_primary_ip.instance]
 }
 
 # Attach firewalls to servers using firewall_attachment resource

@@ -30,8 +30,6 @@ variable "defaults" {
     ipv4_enabled             = optional(bool, true)
     ipv4                     = optional(number)
     ipv6_enabled             = optional(bool, true)
-    primary_ip_auto_delete   = optional(bool, false)
-    primary_ip_labels        = optional(map(string), {})
   })
 }
 
@@ -55,9 +53,6 @@ variable "overrides" {
     ipv4_enabled             = optional(bool)
     ipv4                     = optional(number)
     ipv6_enabled             = optional(bool)
-    primary_ip_name          = optional(string)
-    primary_ip_auto_delete   = optional(bool)
-    primary_ip_labels        = optional(map(string))
   }))
   default = {}
 }

@@ -5,14 +5,8 @@ locals {
     image                    = "ubuntu-22.04"
     datacenter               = "nbg1-dc3"
     shutdown_before_deletion = true
-    ipv4_enabled             = true
+    ipv4_enabled             = false
     ipv6_enabled             = true
-    external_ip              = true
-    primary_ip_auto_delete   = false
-    primary_ip_labels = {
-      "dc"        = "nuremberg"
-      "permanent" = "yes"
-    }
     labels = {
       "jumphost" = "true"
       "app"      = "docker"
@@ -27,12 +21,6 @@ locals {
     shutdown_before_deletion = true
     ipv4_enabled             = true
     ipv6_enabled             = true
-    external_ip              = false
-    primary_ip_auto_delete   = true
-    primary_ip_labels = {
-      "dc"        = "nuremberg"
-      "permanent" = "no"
-    }
     labels = {
       "jumphost" = "false"
       "app"      = "docker"
@@ -47,12 +35,6 @@ locals {
     shutdown_before_deletion = true
     ipv4_enabled             = true
     ipv6_enabled             = true
-    external_ip              = true
-    primary_ip_auto_delete   = false
-    primary_ip_labels = {
-      "dc"        = "nuremberg"
-      "permanent" = "yes"
-    }
     labels = {
       "app"  = "web"
       "role" = "web-server"
@@ -66,12 +48,6 @@ locals {
     shutdown_before_deletion = true
     ipv4_enabled             = true
     ipv6_enabled             = true
-    external_ip              = false
-    primary_ip_auto_delete   = false
-    primary_ip_labels = {
-      "dc"        = "nuremberg"
-      "permanent" = "yes"
-    }
     labels = {
       "app"  = "database"
       "role" = "db-server"
