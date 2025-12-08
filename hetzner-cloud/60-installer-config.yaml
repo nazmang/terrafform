@@ -1,0 +1,19 @@
+network:
+  version: 2
+  ethernets:
+    enp7s0:
+      #addresses:
+      dhcp4: true
+      routes:
+        - to: 172.23.0.0/24
+          via: 10.163.0.1
+          on-link: yes  
+        - to: 192.168.2.0/24
+          via: 10.163.0.1
+          on-link: yes  
+        - to: 192.168.88.0/24
+          via: 10.163.0.1
+          on-link: yes  
+        - to: 192.168.150.0/24
+          via: 10.163.0.1
+          on-link: yes  

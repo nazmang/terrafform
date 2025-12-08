@@ -1,0 +1,6 @@
+project_name     = "bucket-access-project"
+project_id       = "bucket-access-project-1234"
+org_id           = "123456789012"         # Replace with your GCP organization ID
+billing_account  = "ABCDEF-123456-789012" # Replace with your billing account ID
+bucket_name      = "bucket-20241911"
+region           = "us-central1"
