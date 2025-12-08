@@ -1,17 +1,16 @@
-# Create primary IPs for each instance (only if ipv4 is enabled and not explicitly set)
+# Create primary IPs for each instance (only if external_ip is true, ipv4 is enabled and not explicitly set)
 resource "hcloud_primary_ip" "instance" {
   for_each = {
     for k, v in local.instances_with_overrides : k => v
-    if v.ipv4_enabled && v.ipv4 == null
+    if v.external_ip == true && v.ipv4_enabled == true && v.ipv4 == null
   }
 
   name          = each.value.primary_ip_name
   datacenter    = try(each.value.datacenter, null)
-  location      = try(each.value.location, null)
   type          = "ipv4"
   assignee_type = "server"
-  auto_delete   = each.value.primary_ip_auto_delete
-  labels        = each.value.primary_ip_labels
+  auto_delete   = coalesce(each.value.primary_ip_auto_delete, false)
+  labels        = coalesce(each.value.primary_ip_labels, {})
 }
 
 # Create firewalls
@@ -39,8 +38,8 @@ resource "hcloud_server" "instance" {
   for_each = local.instances_with_overrides
 
   name        = each.value.name
-  server_type = each.value.server_type
-  image       = each.value.image
+  server_type = coalesce(each.value.server_type, var.defaults.server_type)
+  image       = coalesce(each.value.image, var.defaults.image)
   ssh_keys    = each.value.ssh_keys
   labels      = each.value.labels
   user_data   = each.value.user_data
@@ -49,9 +48,9 @@ resource "hcloud_server" "instance" {
   datacenter = try(each.value.datacenter, null)
 
   public_net {
-    ipv4_enabled = each.value.ipv4_enabled
-    ipv4         = each.value.ipv4 != null ? each.value.ipv4 : (each.value.ipv4_enabled ? try(hcloud_primary_ip.instance[each.key].id, null) : null)
-    ipv6_enabled = each.value.ipv6_enabled
+    ipv4_enabled = coalesce(each.value.ipv4_enabled, true)
+    ipv4         = each.value.ipv4 != null ? each.value.ipv4 : (coalesce(each.value.ipv4_enabled, true) ? try(hcloud_primary_ip.instance[each.key].id, null) : null)
+    ipv6_enabled = coalesce(each.value.ipv6_enabled, true)
   }
 
   dynamic "network" {
@@ -74,7 +73,7 @@ resource "hcloud_firewall_attachment" "server" {
   for_each = {
     for pair in flatten([
       for server_key, server in hcloud_server.instance : [
-        for firewall_id in local.instances_with_overrides[server_key].firewall_ids : {
+        for firewall_id in coalesce(local.instances_with_overrides[server_key].firewall_ids, []) : {
           key         = "${server_key}-${firewall_id}"
           server_id   = server.id
           firewall_id = firewall_id
