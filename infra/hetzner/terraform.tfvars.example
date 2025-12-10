@@ -1,0 +1,18 @@
+# Hetzner Cloud API Token
+# Get your token from: https://console.hetzner.cloud/
+hcloud_token = "your-hetzner-cloud-api-token-here"
+
+# SSH Configuration
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+# Firewall Configuration
+firewall_allowed_ips = [
+  "0.0.0.0/0",  # Allow from anywhere (adjust for production)
+  "::/0"        # Allow IPv6 from anywhere
+]
+
+# Network Routes
+remote_allowed_ips = [
+  "0.0.0.0/0"   # Adjust based on your network requirements
+]
+

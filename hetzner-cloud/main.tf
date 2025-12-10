@@ -17,25 +17,25 @@ resource "hcloud_server" "main_server" {
 
   public_net {
     ipv4_enabled = true
-    ipv4 = hcloud_primary_ip.main.id
+    ipv4         = hcloud_primary_ip.main.id
     ipv6_enabled = true
   }
 
   network {
     network_id = hcloud_network.internal.id
-    ip         = "10.163.1.5"    
+    ip         = "10.163.1.5"
   }
 
   firewall_ids = [hcloud_firewall.basic-access.id]
 
   shutdown_before_deletion = true
 
-  depends_on = [ hcloud_network_subnet.internal-subnet-docker ]
+  depends_on = [hcloud_network_subnet.internal-subnet-docker]
 
   lifecycle {
     ignore_changes = [
       ssh_keys,
-      firewall_ids      
+      firewall_ids
     ]
   }
 
@@ -55,21 +55,21 @@ resource "hcloud_server" "worker_server1" {
   location = "nbg1" # You can specify a different location if needed
 
   public_net {
-    ipv4_enabled = true 
-    ipv4 = hcloud_primary_ip.worker_server1.id   
+    ipv4_enabled = true
+    ipv4         = hcloud_primary_ip.worker_server1.id
     ipv6_enabled = true
   }
 
   network {
     network_id = hcloud_network.internal.id
-    ip         = "10.163.1.15"    
+    ip         = "10.163.1.15"
   }
 
   firewall_ids = [hcloud_firewall.basic-access.id]
 
   shutdown_before_deletion = true
 
-  depends_on = [ hcloud_network_subnet.internal-subnet-docker ] 
+  depends_on = [hcloud_network_subnet.internal-subnet-docker]
 
   lifecycle {
     ignore_changes = [
@@ -85,40 +85,73 @@ resource "hcloud_server" "worker_server1" {
   }
 }
 
-# # Filter out the servers with the label "app" = "docker"
-# locals {
-#   docker_servers = {
-#     for id, server in hcloud_server
-#     : id => server
-#     if lookup(server.labels, "app", "") == "docker"
-#   }
-# }
+resource "hcloud_server" "worker_server2" {
+  name        = "cx33-ubuntu-03"
+  server_type = "cx33"
+  image       = "ubuntu-22.04"
+  ssh_keys    = [hcloud_ssh_key.my_ssh_key.id]
+
+  location = "nbg1" # You can specify a different location if needed
+
+  public_net {
+    ipv4_enabled = true
+    ipv4         = hcloud_primary_ip.worker_server2.id
+    ipv6_enabled = true
+  }
+
+  network {
+    network_id = hcloud_network.internal.id
+    ip         = "10.163.1.16"
+  }
+
+  firewall_ids = [hcloud_firewall.basic-access.id]
+
+  shutdown_before_deletion = true
+
+  depends_on = [hcloud_network_subnet.internal-subnet-docker]
+
+  lifecycle {
+    ignore_changes = [
+      ssh_keys,
+      firewall_ids
+    ]
+  }
+
+  labels = {
+    "jumphost" = "false",
+    "app"      = "docker",
+    "role"     = "worker"
+  }
+}
 
 data "hcloud_servers" "docker_servers" {
   with_selector = "app=docker"
-  with_status = [ "running" ]
+  with_status   = ["running"]
 }
 
 data "hcloud_servers" "jumphost_servers" {
   with_selector = "jumphost=true"
-  with_status = [ "running" ]
+  with_status   = ["running"]
 }
 
 # Apply a universal provisioner to all docker servers
 resource "null_resource" "docker_provisioners" {
-  # for_each = { 
-  #   for id, server in hcloud_server
-  #   : id => server
-  #   if lookup(server.labels, "app", "") == "docker"
-  # }
+
   for_each = { for server in data.hcloud_servers.docker_servers.servers : server.id => server }
+
+  depends_on = [
+    hcloud_server.main_server,
+    hcloud_server.worker_server1,
+    hcloud_server.worker_server2,
+    data.hcloud_servers.docker_servers
+  ]
 
   connection {
     type        = "ssh"
     user        = var.ssh_user
     private_key = file(var.ssh_private_key_path)
     # host        = each.value.ipv4_address != "" ? each.value.ipv4_address : each.value.ipv6_address
-    host        = each.value.ipv4_address 
+    host = each.value.ipv4_address
   }
 
   provisioner "remote-exec" {
@@ -130,12 +163,7 @@ resource "null_resource" "docker_provisioners" {
       "apt-get update",
       "apt-get install -y docker-ce",
     ]
-  }  
-
-  # depends_on = [
-  #   hcloud_server.main_server,
-  #   hcloud_server.worker_server1    
-  # ]
+  }
 }
 
 resource "null_resource" "jumphost_provisioners" {
@@ -146,9 +174,9 @@ resource "null_resource" "jumphost_provisioners" {
     user        = var.ssh_user
     private_key = file(var.ssh_private_key_path)
     # host        = each.value.ipv4_address != "" ? each.value.ipv4_address : each.value.ipv6_address
-    host        = each.value.ipv4_address 
+    host = each.value.ipv4_address
   }
-  provisioner "remote-exec" { 
+  provisioner "remote-exec" {
     inline = [
       "apt-get install -y wireguard",
       "${length(var.wg_private_key) > 0 ? "umask 077; echo ${var.wg_private_key} > /etc/wireguard/privatekey" : "umask 077; wg genkey | tee /etc/wireguard/privatekey"}",
@@ -175,21 +203,24 @@ resource "null_resource" "always_run" {
 }
 
 resource "null_resource" "wg_pub_key" {
-  depends_on = [ 
-    hcloud_server.main_server, 
-    null_resource.jumphost_provisioners 
+  for_each = { for server in data.hcloud_servers.jumphost_servers.servers : server.id => server }
+
+  depends_on = [
+    null_resource.jumphost_provisioners
   ]
   # Fetch the public key from the remote server
   provisioner "local-exec" {
     command = <<EOT
-      ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} ${var.ssh_user}@${hcloud_server.main_server.ipv4_address} 'cat /etc/wireguard/publickey' > ./wireguard_publickey.txt
+      ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} ${var.ssh_user}@${each.value.ipv4_address} 'cat /etc/wireguard/publickey' > ./wireguard_publickey_${each.value.id}.txt
     EOT
   }
-  lifecycle {
-    replace_triggered_by = [
-      null_resource.always_run
-    ]
-  }
+}
+
+# Read the public key files after they are created
+data "external" "wg_public_keys" {
+  for_each   = null_resource.wg_pub_key
+  program    = ["bash", "-c", "PUBKEY=$(cat ./wireguard_publickey_${each.key}.txt 2>/dev/null | tr -d '\\n' || echo ''); echo \"{\\\"public_key\\\":\\\"$PUBKEY\\\"}\""]
+  depends_on = [null_resource.wg_pub_key]
 }
 
 output "server_ipv4" {
@@ -202,6 +233,8 @@ output "server_ipv6" {
 
 # Output the server's WireGuard public key
 output "wireguard_public_key" {
-  depends_on = [ null_resource.wg_pub_key ]
-  value = trimspace(file("wireguard_publickey.txt"))
+  depends_on = [data.external.wg_public_keys]
+  value = {
+    for id, data in data.external.wg_public_keys : id => data.result.public_key
+  }
 }

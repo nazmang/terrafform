@@ -6,43 +6,53 @@ resource "google_project" "bucket_access_project" {
   billing_account = var.billing_account
 }
 
+module "backup_bucket_sa" {
+  for_each = local.iam_backup_sa
+  source = "../../modules/iam_service_accounts"
+
+  project_id = var.project_id
+  name = each.key
+}
+
+module "data_bucket_sa" {
+  for_each = local.iam_data_sa
+  source = "../../modules/iam_service_accounts"
+
+  project_id = var.project_id
+  name = each.key
+}
+
+
 module "gcs_backup_buckets" {
   for_each = local.gcs_backup_buckets
-  source = "../../gcs-bucket/modules/gcs_buckets"
+  source = "../../modules/gcs_buckets"
 
   name = each.key
   project_id = var.project_id
-  
+  defaults = local.gcs_backup_bucket_defaults
+  overrides = each.value
+  owners =  { for sa in module.backup_bucket_sa.service_account_name : sa.account_id => sa.name }
 
 }
 
-# Create a new single-region bucket
-resource "google_storage_bucket" "bucket" {
-  name     = var.bucket_name
-  location = var.region
-  storage_class = "STANDARD"
+module "gcs_data_buckets" {
+  for_each = local.gcs_data_buckets
+  source = "../../modules/gcs_buckets"
 
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-    condition {
-      age = 365 # Example: Auto-delete objects older than 1 year
-    }
-  }
+  name = each.key
+  project_id = var.project_id
+  defaults = local.gcs_data_bucket_defaults
+  overrides = each.value
+  owners = [
+    "serviceAccount:${google_service_account.bucket_service_account.email}"
+  ]
+
 }
 
 # Create a service account
 resource "google_service_account" "bucket_service_account" {
   account_id   = "bucket-access-sa"
   display_name = "Service Account for Bucket Access"
-}
-
-# Assign IAM role to the service account for bucket access
-resource "google_storage_bucket_iam_member" "bucket_rw_access" {
-  bucket = google_storage_bucket.bucket.name
-  role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_service_account.bucket_service_account.email}"
 }
 
 # Generate and output the service account key
@@ -55,12 +65,4 @@ resource "google_service_account_key" "bucket_key" {
 resource "local_file" "bucket_service_account_key" {
   content  = google_service_account_key.bucket_key.private_key
   filename = "bucket_service_account_key.json"  # Specify the file name and path
-}
-
-output "service_account_key_path" {
-  value = local_file.bucket_service_account_key.filename
-}
-
-output "bucket_name" {
-  value = google_storage_bucket.bucket.name
 }

@@ -1,0 +1,6 @@
+pm_api_url = "https://proxmox.example.com:8006/api2/json"
+pm_user = "root@pam"
+pm_password = "password"
+root_user = "rootuser"
+root_user_password = "password"
+ldap_default_authtok = "abcdefjh..."
