@@ -53,12 +53,15 @@ locals {
       ipconfig1 = "ip=10.164.1.101/24"
       boot      = "order=scsi0"
       tags      = "dev,k8s"
+      # control-plane + etcd: never rebooted by the provider on its own.
+      automatic_reboot = false
       disks = {
         scsi = {
           scsi0 = {
             disk = {
               backup  = true
-              size    = "30G"
+              # 30G -> 50G on 2026-09-20 (grown online, see k8s03).
+              size    = "50G"
               storage = "vmdata_thin"
             }
           }
@@ -90,12 +93,15 @@ locals {
       ipconfig1 = "ip=10.164.1.102/24"
       boot      = "order=scsi0"
       tags      = "dev,k8s"
+      # control-plane + etcd: never rebooted by the provider on its own.
+      automatic_reboot = false
       disks = {
         scsi = {
           scsi0 = {
             disk = {
               backup  = true
-              size    = "30G"
+              # 30G -> 50G on 2026-09-20 (grown online, see k8s03).
+              size    = "50G"
               storage = "vmdata_thin"
             }
           }
