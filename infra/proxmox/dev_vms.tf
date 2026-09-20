@@ -126,12 +126,22 @@ locals {
       ipconfig1 = "ip=10.164.1.103/24"
       boot      = "order=scsi0"
       tags      = "dev,k8s"
+      # Never let the provider reboot this VM on its own: it carries an etcd
+      # member, Vault, Prometheus and a MinIO pool. A disk grow is online; if
+      # the provider ever thinks a change needs a reboot it may only flag
+      # reboot_required, and the reboot is scheduled by hand.
+      automatic_reboot = false
       disks = {
         scsi = {
           scsi0 = {
             disk = {
               backup  = true
-              size    = "30G"
+              # 30G -> 50G on 2026-09-20. 29G root was 83% full with 12G of containerd
+              # layers; an image pull of ~1G could cross kubelet's 10% eviction
+              # threshold (k8s01 did on 2026-09-20 06:10 UTC). Grown online:
+              # provider resizes the Proxmox disk, then growpart + resize2fs on the
+              # node. k8s01/k8s02 to follow one at a time.
+              size    = "50G"
               storage = "vmdata_thin"
             }
           }
