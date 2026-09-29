@@ -59,7 +59,7 @@ locals {
         scsi = {
           scsi0 = {
             disk = {
-              backup  = true
+              backup = true
               # 30G -> 50G on 2026-09-20 (grown online, see k8s03).
               size    = "50G"
               storage = "vmdata_thin"
@@ -99,7 +99,7 @@ locals {
         scsi = {
           scsi0 = {
             disk = {
-              backup  = true
+              backup = true
               # 30G -> 50G on 2026-09-20 (grown online, see k8s03).
               size    = "50G"
               storage = "vmdata_thin"
@@ -141,7 +141,7 @@ locals {
         scsi = {
           scsi0 = {
             disk = {
-              backup  = true
+              backup = true
               # 30G -> 50G on 2026-09-20. 29G root was 83% full with 12G of containerd
               # layers; an image pull of ~1G could cross kubelet's 10% eviction
               # threshold (k8s01 did on 2026-09-20 06:10 UTC). Grown online:
@@ -206,16 +206,17 @@ locals {
         cores   = 2
         sockets = 1
       }
-      ipconfig0 = "ip=10.163.11.105/24,gw=10.163.11.25"
-      ipconfig1 = "ip=10.164.1.105/24"
-      boot      = "order=scsi0"
-      tags      = "dev,docker"
+      ipconfig0        = "ip=10.163.11.105/24,gw=10.163.11.25"
+      ipconfig1        = "ip=10.164.1.105/24"
+      boot             = "order=scsi0"
+      tags             = "dev,docker"
+      automatic_reboot = false
       disks = {
         scsi = {
           scsi0 = {
             disk = {
               backup  = true
-              size    = "40G"
+              size    = "60G"
               storage = "vmdata_thin"
             }
           }
