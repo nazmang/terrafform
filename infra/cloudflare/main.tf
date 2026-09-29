@@ -8,4 +8,3 @@ module "cloudflare_tunnel_jenkins" {
   tunnel_config = each.value.tunnel_config
   domain        = var.cloudflare_domain_name
 }
-

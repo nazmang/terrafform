@@ -11,7 +11,7 @@ variable "zone_id" {
 variable "zone_ttl" {
   description = "Cloudflare zone TTL for DNS records"
   type        = number
-  default     = 3600
+  default     = 1
 }
 
 variable "zone_type" {
@@ -44,9 +44,28 @@ variable "tunnel_config" {
     ingress = list(object({
       hostname = optional(string)
       service  = string
-    }))
-    origin_request = optional(object({
-      origin_server_name = optional(string)
+      path     = optional(string)
+      origin_request = optional(object({
+        access = optional(object({
+          aud_tag = optional(list(string))
+          team_name = optional(string)
+          required = optional(bool)
+        }))
+        ca_pool = optional(string)
+        connect_timeout = optional(number)
+        disable_chunked_encoding = optional(bool)
+        http2_origin = optional(bool)
+        http_host_header = optional(string)
+        keep_alive_connections = optional(number)
+        keep_alive_timeout = optional(number)
+        match_sn_ito_host = optional(bool)
+        no_happy_eyeballs = optional(bool)
+        no_tls_verify = optional(bool)
+        origin_server_name = optional(string)
+        proxy_type = optional(string)
+        tcp_keep_alive = optional(number)
+        tls_timeout = optional(number)
+      }))
     }))
     warp_routing = optional(object({
       enabled = optional(bool)
@@ -55,15 +74,7 @@ variable "tunnel_config" {
   default = {
     ingress = [
       {
-        hostname = "example.yourdomain.com"
-        service  = "http://localhost:8080"
-      },
-      {
-        hostname = "api.yourdomain.com"
-        service  = "https://localhost:8443"
-      },
-      {
-        service = "https://localhost:8080"
+        service = "http_status:404"
       }
     ]
   }
