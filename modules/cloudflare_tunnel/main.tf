@@ -4,7 +4,9 @@ resource "cloudflare_zero_trust_tunnel_cloudflared" "tunnel" {
   tunnel_secret = local.tunnel_secret
   config_src    = "cloudflare"
   lifecycle {
-    ignore_changes = [config_src]
+    # tunnel_secret is write-only in provider v5: the API never returns it,
+    # so without this every plan wants to "set" it again.
+    ignore_changes = [config_src, tunnel_secret]
   }
 }
 
@@ -12,6 +14,9 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "config" {
   tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.tunnel.id
   account_id = var.account_id
   config     = var.tunnel_config
+  # Provider v5 defaults source to "local"; our tunnels are remotely managed.
+  # Letting it flip to "local" makes cloudflared ignore the dashboard ingress.
+  source = "cloudflare"
 }
 
 # Optionally, create a public hostname

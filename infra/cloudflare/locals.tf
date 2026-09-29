@@ -4,8 +4,8 @@ locals {
       zone_type = "CNAME"
       tunnel_config = {
         ingress = [
-          { 
-            service = "http://gateway:80" 
+          {
+            service = "http://gateway:80"
           },
         ]
       }
@@ -14,9 +14,9 @@ locals {
       zone_type = "CNAME"
       tunnel_config = {
         ingress = [
-          { 
+          {
             hostname = "*.srvx.cc"
-            service = "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"
+            service  = "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"
           },
           {
             service = "http_status:404"
@@ -28,8 +28,8 @@ locals {
       zone_type = "CNAME"
       tunnel_config = {
         ingress = [
-          { 
-            service = "http://192.168.88.152:8123" 
+          {
+            service = "http://192.168.88.152:8123"
           },
         ]
       }
