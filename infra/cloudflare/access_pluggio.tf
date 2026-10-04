@@ -47,3 +47,23 @@ output "pluggio_bridge_client_secret" {
   value     = cloudflare_zero_trust_access_service_token.pluggio_bridge.client_secret
   sensitive = true
 }
+
+# /ref/<token>.jpg — a reference picture for the image service (nanobananaapi.ai fetches it by URL). Access is
+# bypassed only for this path; the server opens each picture by a one-off token that lives ten minutes.
+resource "cloudflare_zero_trust_access_policy" "pluggio_ref" {
+  account_id = var.cloudflare_account_id
+  name       = "pluggio: image references"
+  decision   = "bypass"
+  include    = [{ everyone = {} }]
+}
+
+resource "cloudflare_zero_trust_access_application" "pluggio_ref" {
+  account_id           = var.cloudflare_account_id
+  name                 = "pluggio refs"
+  type                 = "self_hosted"
+  domain               = "${var.pluggio_domain}/ref"
+  app_launcher_visible = false
+  policies = [
+    { id = cloudflare_zero_trust_access_policy.pluggio_ref.id, precedence = 1 },
+  ]
+}
