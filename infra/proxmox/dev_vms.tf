@@ -147,7 +147,9 @@ locals {
               # threshold (k8s01 did on 2026-09-20 06:10 UTC). Grown online:
               # provider resizes the Proxmox disk, then growpart + resize2fs on the
               # node. k8s01/k8s02 to follow one at a time.
-              size    = "50G"
+              # 50G -> 80G on 2026-10-08: root 81% full, 56 pluggio images in
+              # containerd (image GC only starts at 85%). Grown online, same way.
+              size    = "80G"
               storage = "vmdata_thin"
             }
           }
