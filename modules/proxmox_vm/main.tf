@@ -76,8 +76,18 @@ resource "proxmox_vm_qemu" "this" {
   lifecycle {
     # Ignore bootdisk changes for existing VMs to prevent unnecessary updates
     # New VMs will still get bootdisk set from defaults
+    #
+    # `disk` is ignored since 2026-10-12 (ADR-0007 in homelab-journal): the
+    # Proxmox CSI plugin hot-plugs one disk per PVC into the k8s VMs, and the
+    # provider would see those as drift and plan to remove them -- that is the
+    # PVC's data. The disk list here now applies only when a VM is created.
+    # Growing an existing disk is done through Proxmox (API/`qm resize`), then
+    # growpart + resize2fs on the guest; update `size` in the config afterwards
+    # as a record. It is ignored for every VM, not just k8s, because lifecycle
+    # cannot be conditional and splitting the resource would mean moving state.
     ignore_changes = [
-      bootdisk
+      bootdisk,
+      disk,
     ]
   }
 

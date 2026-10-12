@@ -37,3 +37,18 @@ See `variables.tf` for the full schema.
 ## Provider
 
 Requires the `Telmate/proxmox` provider (see `provider.tf` for version). 
+## Disks are create-only (since 2026-10-12)
+
+`lifecycle.ignore_changes` includes `disk`. The Proxmox CSI plugin hot-plugs
+one disk per PersistentVolume into the k8s VMs; without the ignore, the
+provider treats those disks as drift and plans to remove them, together with
+the volume's data.
+
+Consequence: changing `size` (or any other disk setting) of an existing VM in
+the config no longer reaches Proxmox. To grow a disk:
+
+1. Resize it in Proxmox (`qm resize <vmid> scsi0 <size>` or the API).
+2. On the guest: rescan, `growpart`, `resize2fs`.
+3. Update `size` in the config so the code still documents reality.
+
+New VMs still get their disks from the config.
