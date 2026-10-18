@@ -338,6 +338,43 @@ locals {
           model  = "virtio"
           bridge = "vmbr0"
       }]
+    },
+    pbs01 = {
+      # Proxmox Backup Server for pve01's own VMs. PBS needs Debian, so this
+      # one clones a Debian 13 template instead of the default Ubuntu one.
+      # The datastore is a CIFS mount from the Storage Box (owner's choice on
+      # 2026-10-18); this disk is only the OS. Backups are encrypted on pve01
+      # before upload, the key never reaches this VM.
+      memory        = 4096
+      template_name = "debian-13-cloudinit"
+      ipconfig0     = "ip=10.163.11.109/24,gw=10.163.11.25"
+      ipconfig1     = "ip=10.164.1.109/24"
+      boot          = "order=scsi0"
+      tags          = "dev,backup"
+      disks = {
+        scsi = {
+          scsi0 = {
+            disk = {
+              # Never back the backup server up into itself.
+              backup  = false
+              size    = "32G"
+              storage = "vmdata_thin"
+            }
+          }
+        }
+      }
+      networks = [
+        {
+          id       = 0
+          model    = "virtio"
+          bridge   = "vmbr1"
+          firewall = false
+        },
+        {
+          id     = 1
+          model  = "virtio"
+          bridge = "vmbr0"
+      }]
     }
   }
 }
