@@ -18,7 +18,7 @@ module "manager_instances" {
   defaults = merge(
     local.manager_defaults,
     {
-      ssh_keys = [hcloud_ssh_key.my_ssh_key.id]      
+      ssh_keys = [hcloud_ssh_key.my_ssh_key.id]
       networks = [{
         network_id = hcloud_network.internal.id
       }]

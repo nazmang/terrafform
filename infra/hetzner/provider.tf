@@ -2,7 +2,12 @@ terraform {
   required_providers {
     hcloud = {
       source = "hetznercloud/hcloud"
-      version = "1.57.0"
+      # 1.58+ has Storage Box resources.
+      version = "1.70.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.7.2"
     }
   }
 }

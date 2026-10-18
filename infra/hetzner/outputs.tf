@@ -87,3 +87,19 @@ output "main_server_ip" {
     null
   )
 }
+
+output "pbs_storage_box_server" {
+  description = "FQDN for the PBS CIFS mount"
+  value       = module.storage_boxes.subaccounts["pbs/pbs01"].server
+}
+
+output "pbs_storage_box_username" {
+  description = "Subaccount username for the PBS CIFS mount"
+  value       = module.storage_boxes.subaccounts["pbs/pbs01"].username
+}
+
+output "pbs_storage_box_password" {
+  description = "Subaccount password; pipe it into the cred file, never print it"
+  value       = module.storage_boxes.subaccount_passwords["pbs/pbs01"]
+  sensitive   = true
+}

@@ -25,3 +25,9 @@ variable "remote_allowed_ips" {
   default     = ["0.0.0.0/0"]
 }
 
+
+variable "storage_box_ssh_public_key_path" {
+  description = "SSH public key injected into the PBS Storage Box main account (cannot be changed later without replacing the box)"
+  type        = string
+  default     = "~/.ssh/hetzner_ed25519.pub"
+}
