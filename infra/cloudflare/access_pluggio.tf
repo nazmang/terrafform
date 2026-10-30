@@ -1,9 +1,16 @@
-# pluggio behind Cloudflare Access: the owner by email, the toy bridge by a service token.
+# pluggio behind Cloudflare Access: the owner by email, the toy bridge and the big PC's GPU agent by service tokens.
 # The server checks the same JWT itself (aud below), so traffic that skips Access is refused too.
 
 resource "cloudflare_zero_trust_access_service_token" "pluggio_bridge" {
   account_id = var.cloudflare_account_id
   name       = "pluggio-bridge"
+  duration   = "8760h"
+}
+
+# The GPU agent on the big PC (pluggio contracts.md, «Агент GPU на ПК»): the server opens only /ws/gpu with it.
+resource "cloudflare_zero_trust_access_service_token" "pluggio_gpu" {
+  account_id = var.cloudflare_account_id
+  name       = "pluggio-gpu"
   duration   = "8760h"
 }
 
@@ -22,6 +29,13 @@ resource "cloudflare_zero_trust_access_policy" "pluggio_bridge" {
   include    = [{ service_token = { token_id = cloudflare_zero_trust_access_service_token.pluggio_bridge.id } }]
 }
 
+resource "cloudflare_zero_trust_access_policy" "pluggio_gpu" {
+  account_id = var.cloudflare_account_id
+  name       = "pluggio: gpu"
+  decision   = "non_identity"
+  include    = [{ service_token = { token_id = cloudflare_zero_trust_access_service_token.pluggio_gpu.id } }]
+}
+
 resource "cloudflare_zero_trust_access_application" "pluggio" {
   account_id           = var.cloudflare_account_id
   name                 = "pluggio"
@@ -32,6 +46,7 @@ resource "cloudflare_zero_trust_access_application" "pluggio" {
   policies = [
     { id = cloudflare_zero_trust_access_policy.pluggio_owner.id, precedence = 1 },
     { id = cloudflare_zero_trust_access_policy.pluggio_bridge.id, precedence = 2 },
+    { id = cloudflare_zero_trust_access_policy.pluggio_gpu.id, precedence = 3 },
   ]
 }
 
@@ -45,6 +60,15 @@ output "pluggio_bridge_client_id" {
 
 output "pluggio_bridge_client_secret" {
   value     = cloudflare_zero_trust_access_service_token.pluggio_bridge.client_secret
+  sensitive = true
+}
+
+output "pluggio_gpu_client_id" {
+  value = cloudflare_zero_trust_access_service_token.pluggio_gpu.client_id
+}
+
+output "pluggio_gpu_client_secret" {
+  value     = cloudflare_zero_trust_access_service_token.pluggio_gpu.client_secret
   sensitive = true
 }
 
