@@ -26,12 +26,15 @@ variable "defaults" {
     sshkeys          = optional(string)
     vm_state         = optional(string)
     automatic_reboot = optional(bool)
-    full_clone       = optional(bool)
-    scsihw           = optional(string)
-    tags             = optional(string)
-    os_type          = optional(string)
-    searchdomain     = optional(string)
-    nameserver       = optional(string)
+    # true for VMs whose disks are hot-plugged by the Proxmox CSI plugin (k8s nodes):
+    # Terraform then ignores `disk` changes after creation.
+    csi_hotplug_disks = optional(bool)
+    full_clone        = optional(bool)
+    scsihw            = optional(string)
+    tags              = optional(string)
+    os_type           = optional(string)
+    searchdomain      = optional(string)
+    nameserver        = optional(string)
     cpu = optional(object({
       cores   = number
       sockets = number
@@ -70,12 +73,15 @@ variable "overrides" {
     sshkeys          = optional(string)
     vm_state         = optional(string)
     automatic_reboot = optional(bool)
-    full_clone       = optional(bool)
-    scsihw           = optional(string)
-    tags             = optional(string)
-    os_type          = optional(string)
-    searchdomain     = optional(string)
-    nameserver       = optional(string)
+    # true for VMs whose disks are hot-plugged by the Proxmox CSI plugin (k8s nodes):
+    # Terraform then ignores `disk` changes after creation.
+    csi_hotplug_disks = optional(bool)
+    full_clone        = optional(bool)
+    scsihw            = optional(string)
+    tags              = optional(string)
+    os_type           = optional(string)
+    searchdomain      = optional(string)
+    nameserver        = optional(string)
     cpu = optional(object({
       cores   = number
       sockets = number

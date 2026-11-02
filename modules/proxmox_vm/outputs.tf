@@ -1,12 +1,12 @@
 output "vm_id" {
-  value = proxmox_vm_qemu.this.id
+  value = local.vm.id
 }
 
 output "vm_name" {
-  value = proxmox_vm_qemu.this.name
+  value = local.vm.name
 }
 
 output "ip_addresses" {
-  value       = proxmox_vm_qemu.this.default_ipv4_address
+  value       = local.vm.default_ipv4_address
   description = "Main IPv4 address (if available)"
 }

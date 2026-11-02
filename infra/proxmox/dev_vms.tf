@@ -42,6 +42,7 @@ locals {
       ]
     },
     k8s01 = {
+      csi_hotplug_disks = true # Proxmox CSI подключает диски PVC — `disk` после создания не трогаем
       # control-plane + etcd (host-deployed). apiserver alone resides ~2G, and etcd
       # lives in system.slice where the scheduler cannot see it.
       memory = 16384
@@ -82,6 +83,7 @@ locals {
       ]
     },
     k8s02 = {
+      csi_hotplug_disks = true # Proxmox CSI подключает диски PVC — `disk` после создания не трогаем
       # control-plane + etcd. Was the node that hit SystemOOM (victim:
       # argocd-application-controller) on 2026-09-09.
       memory = 16384
@@ -121,6 +123,7 @@ locals {
       }]
     },
     k8s03 = {
+      csi_hotplug_disks = true # Proxmox CSI подключает диски PVC — `disk` после создания не трогаем
       # etcd member and worker both -- carries vault, trivy and a minio pool on top
       # of etcd, and was the tightest node in the cluster.
       memory = 16384
@@ -169,7 +172,8 @@ locals {
       }]
     },
     k8s04 = {
-      memory = 8192
+      csi_hotplug_disks = true # Proxmox CSI подключает диски PVC — `disk` после создания не трогаем
+      memory            = 8192
       cpu = {
         cores   = 2
         sockets = 2
@@ -287,6 +291,15 @@ locals {
             disk = {
               backup  = true
               size    = "40G"
+              storage = "vmdata_thin"
+            }
+          }
+          # 02.11.2026: том Forgejo (ADR-0009) — внутри VM LUKS2 + Clevis/Tang (Tang на debian01),
+          # монтируется в /srv/forgejo. backup=true: PBS видит только шифротекст.
+          scsi1 = {
+            disk = {
+              backup  = true
+              size    = "30G"
               storage = "vmdata_thin"
             }
           }

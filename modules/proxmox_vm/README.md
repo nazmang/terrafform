@@ -37,18 +37,20 @@ See `variables.tf` for the full schema.
 ## Provider
 
 Requires the `Telmate/proxmox` provider (see `provider.tf` for version). 
-## Disks are create-only (since 2026-10-12)
+## Disks: managed, except on CSI nodes (since 2026-11-02)
 
-`lifecycle.ignore_changes` includes `disk`. The Proxmox CSI plugin hot-plugs
-one disk per PersistentVolume into the k8s VMs; without the ignore, the
-provider treats those disks as drift and plans to remove them, together with
-the volume's data.
+Two resources, selected by `csi_hotplug_disks`:
 
-Consequence: changing `size` (or any other disk setting) of an existing VM in
-the config no longer reaches Proxmox. To grow a disk:
+- `proxmox_vm_qemu.this[0]` (default) -- disks are managed: adding a slot or
+  growing `size` in the config is applied to the VM. Growing still needs
+  `growpart` + `resize2fs` in the guest.
+- `proxmox_vm_qemu.csi[0]` (`csi_hotplug_disks = true`, the k8s nodes) --
+  `lifecycle.ignore_changes = all`: create-only. The Proxmox CSI plugin
+  hot-plugs one disk per PersistentVolume. Ignoring only `disk` (2026-10-12)
+  was not enough: on 2026-11-02 an in-place update of `ciupgrade` made the
+  provider rewrite the VM config and detach the PVC disks (Vault went down).
+  Change running k8s nodes in Proxmox directly, or drain the node first.
 
-1. Resize it in Proxmox (`qm resize <vmid> scsi0 <size>` or the API).
-2. On the guest: rescan, `growpart`, `resize2fs`.
-3. Update `size` in the config so the code still documents reality.
-
-New VMs still get their disks from the config.
+A lifecycle block cannot be conditional, hence the split. Switching a VM
+between the two needs a `moved` block in the root module (see
+`infra/proxmox/moved.tf`).

@@ -32,3 +32,7 @@ locals {
     ]) : item.key => item
   }
 }
+
+locals {
+  csi_hotplug_disks = coalesce(try(local.configuration.csi_hotplug_disks, null), false)
+}
