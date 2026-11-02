@@ -10,12 +10,12 @@ locals {
     cipassword    = "${var.root_user_password}"
     # See https://registry.terraform.io/providers/Telmate/proxmox/latest/docs/guides/cloud-init%2520getting%2520started
     cicustom         = "vendor=local:snippets/qemu-guest-agent.yml" # /var/lib/vz/snippets/qemu-guest-agent.yml
-    ciupgrade        = true
+    ciupgrade        = false # 02.11.2026: апгрейд пакетов cloud-init при новом instance-id обновил docker на dkr01 при перезагрузке; гости обновляются сами, cloud-init на долгоживущих VM отключён (/etc/cloud/cloud-init.disabled)
     sshkeys          = <<EOF
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCw52kAIVSBiJzf9pDc0mvn1YtGOjJg7PmkJuNPd5vZYONoLS7Tygm0bqZSmURHF4Wsadkkp9fJ3QdBTYB1sS6NRoTOLbziHXc57PdV+ENSRl4VjWnrwul5L9VmLZfdnvSvsxyL10LYVYxTN+Ww564V+NNTuLSpWsAmRVKleaQiS5GIjOH3Zbj+mF2npVW5pozQUvKtH3PdS++NC1Ic0BBdOU8Wl165EdJrg02jgJoR8PC2jWbf5PwuqiZ9Vy6itMV9S63E3ZqSTDfsMHJgt+kzYmqXZx22gh1F4/6O+a/0cP7/L6nQmF7eMsJY8R6VfJc2AdjH4r/gMGhbxPXxyQql
 EOF
     vm_state         = "running"
-    automatic_reboot = true
+    automatic_reboot = false # 02.11.2026: смена ci*-полей не должна перезагружать прод-VM при apply
     pool             = ""
     tags             = "dev"
     target_node      = "pve01"
