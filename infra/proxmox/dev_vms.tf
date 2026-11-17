@@ -14,6 +14,7 @@ locals {
           scsi0 = {
             disk = {
               backup  = true
+              discard = true
               size    = "20G"
               storage = "vmdata_thin"
             }
@@ -21,6 +22,7 @@ locals {
           scsi1 = {
             disk = {
               backup  = true
+              discard = true
               size    = "50G"
               storage = "vmdata_thin"
             }
