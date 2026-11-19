@@ -31,6 +31,22 @@ locals {
             service  = "http://public.kgateway-system.svc.cluster.local:80"
           },
           {
+            hostname = "semaphore.srvx.cc"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
+          },
+          {
+            hostname = "ktulu.srvx.cc"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
+          },
+          {
+            hostname = "ntfy.srvx.cc"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
+          },
+          {
+            hostname = "vault.srvx.cc"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
+          },
+          {
             hostname = "*.srvx.cc"
             service  = "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"
           },
