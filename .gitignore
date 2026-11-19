@@ -35,3 +35,6 @@ manifest.*
 # Temporary disable
 gce-test/
 
+
+# Saved plans carry variable values, the API token included
+*.tfplan

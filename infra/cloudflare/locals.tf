@@ -1,4 +1,7 @@
 locals {
+  # Zone of the cluster tunnel hosts; var.cloudflare_domain_name is srvxapp.com.
+  srvx_cc = "srvx.cc"
+
   cloudflare_tunnels = {
     jenkins = {
       zone_type = "CNAME"
