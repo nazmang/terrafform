@@ -14,6 +14,11 @@ locals {
       zone_type = "CNAME"
       tunnel_config = {
         ingress = [
+          # Hosts moved to kgateway (k8s helm-kgateway); must stay above the wildcard.
+          {
+            hostname = "alertmanager.srvx.cc"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
+          },
           {
             hostname = "*.srvx.cc"
             service  = "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"
