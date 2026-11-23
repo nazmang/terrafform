@@ -63,6 +63,14 @@ locals {
             service  = "http://public.kgateway-system.svc.cluster.local:80"
           },
           {
+            hostname = "approve.srvx.cc"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
+          },
+          {
+            hostname = "health-gate.srvx.cc"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
+          },
+          {
             hostname = "*.srvx.cc"
             service  = "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"
           },
