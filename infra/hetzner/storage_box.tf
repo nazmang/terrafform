@@ -42,6 +42,21 @@ module "storage_boxes" {
             "app" = "pbs"
           }
         }
+        # pgBackRest repo (SFTP) and nightly pg_dump for pg01 on pve01.
+        # Data is encrypted on pg01 (repo cipher) before upload. Auth is by
+        # key: .ssh/authorized_keys in the subaccount home, put there via
+        # the main account.
+        pg01 = {
+          home_directory = "pg01"
+          description    = "pgBackRest repo and dumps for pg01"
+          access_settings = {
+            ssh_enabled = true
+          }
+          labels = {
+            "app"  = "postgres"
+            "host" = "pg01"
+          }
+        }
       }
     }
   }

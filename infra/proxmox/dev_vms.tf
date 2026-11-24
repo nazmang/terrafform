@@ -354,6 +354,55 @@ locals {
           bridge = "vmbr0"
       }]
     },
+    pg01 = {
+      # Standalone PostgreSQL 16 for an app that leaves SQLite (2026-11-24).
+      # The database is ~50M today (db + WAL); disks are sized with a large
+      # margin. Data lives on its own disk so it can grow without touching the
+      # OS disk. Later this host may become a Patroni member.
+      memory = 4096
+      cpu = {
+        cores   = 2
+        sockets = 1
+      }
+      ipconfig0        = "ip=10.163.11.110/24,gw=10.163.11.25"
+      ipconfig1        = "ip=10.164.1.110/24"
+      boot             = "order=scsi0"
+      tags             = "dev,db"
+      automatic_reboot = false
+      disks = {
+        scsi = {
+          scsi0 = {
+            disk = {
+              backup  = true
+              discard = true
+              size    = "20G"
+              storage = "vmdata_thin"
+            }
+          }
+          # /var/lib/postgresql: data + WAL.
+          scsi1 = {
+            disk = {
+              backup  = true
+              discard = true
+              size    = "20G"
+              storage = "vmdata_thin"
+            }
+          }
+        }
+      }
+      networks = [
+        {
+          id       = 0
+          model    = "virtio"
+          bridge   = "vmbr1"
+          firewall = false
+        },
+        {
+          id     = 1
+          model  = "virtio"
+          bridge = "vmbr0"
+      }]
+    },
     pbs01 = {
       # Proxmox Backup Server for pve01's own VMs. PBS needs Debian, so this
       # one clones a Debian 13 template instead of the default Ubuntu one.
