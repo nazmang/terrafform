@@ -103,3 +103,13 @@ output "pbs_storage_box_password" {
   value       = module.storage_boxes.subaccount_passwords["pbs/pbs01"]
   sensitive   = true
 }
+
+output "pg01_storage_box_server" {
+  description = "FQDN for the pg01 pgBackRest SFTP repo (port 23)"
+  value       = module.storage_boxes.subaccounts["pbs/pg01"].server
+}
+
+output "pg01_storage_box_username" {
+  description = "Subaccount username for the pg01 pgBackRest repo"
+  value       = module.storage_boxes.subaccounts["pbs/pg01"].username
+}
