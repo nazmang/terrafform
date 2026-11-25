@@ -17,62 +17,12 @@ locals {
       zone_type = "CNAME"
       tunnel_config = {
         ingress = [
-          # Hosts moved to kgateway (k8s helm-kgateway); must stay above the wildcard.
-          {
-            hostname = "alertmanager.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "argocd.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "uptime-kuma.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "semaphore.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "ktulu.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "ntfy.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "vault.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "review.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "bg-coast-assets.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "pluggio.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "prom-k8s.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "approve.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
-          {
-            hostname = "health-gate.srvx.cc"
-            service  = "http://public.kgateway-system.svc.cluster.local:80"
-          },
+          # Every *.srvx.cc host goes to the kgateway Gateway `public` (k8s
+          # helm-kgateway); a host without an HTTPRoute gets 404 from kgateway.
+          # ingress-nginx is gone (kgw-09). DNS records come from external-dns.
           {
             hostname = "*.srvx.cc"
-            service  = "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"
+            service  = "http://public.kgateway-system.svc.cluster.local:80"
           },
           {
             service = "http_status:404"
